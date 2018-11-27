@@ -1,0 +1,62 @@
+@jsonformat 注解
+
+sql优化：
+	对查询进行优化，应尽量避免全表扫描，首先应考虑在 where 及 order by 涉及的列上建立索引。
+	以下情况会导致引擎放弃使用索引而进行全表扫描
+		where中判空，where xx is null
+		在 where 子句中使用!=或<>操作符
+		在 where 子句中使用 or 来连接条件
+		使用in
+		使用like
+		在 where 子句中对字段进行表达式操作，如where num/2=100 应该-->where num = 100*2
+	索引并不是越多越好，索引固然可以提高相应的 select 的效率，但同时也降低了 insert 及 update 的效率，因为 insert 或 update 时有可能会重建索引
+	不要使用 select * from t ，用具体的字段列表代替“*”，不要返回用不到的任何字段。
+	left join:多表使用left join只是把主表里的所有数据查询出来，其他表只查询表中的符合条件的某一条记录，
+		所以速度非常快；而多表使用where内联，是把所有表的数据全查出来，然后进行比对，所以速度非常慢。
+		使用left join要注意确定哪一张表是主表，如果无法确定主表，则选择哪张表查询的字段最多，就把哪张表作为主表。
+	
+sql注意点：
+	group by 只适用于统计的分组情况，其他的分组情况最好不要用
+	字符串数字与数字直接比较可能会不准确
+	id not in ( null ) --> 因为NULL值在与任意值比较时总是假的（FALSE）,它会失效，所有都选不出来
+	
+java代码中算数计算时，使用BigDecimal来计算，避免精度损失
+
+String转为int时，如果有-@#等其它字符，Integer.valueOf()会出现异常；使用NumberUtils.toInt("2",1)，如果"2"转换失败，使用默认值1
+
+使用@Scope注解声明多例时，还要配置代理模式：@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.INTERFACES)
+
+
+redis 分布式锁
+	原理：拿数据库里的某个表的某个id放进redis里设置x秒时间锁定；如果另一条线程也用到这个id，发现已经存在redis中，放弃使用这个id
+	【注意用完之后要解锁】
+
+分布式事务
+	1：LCN解决方案适用于1.5.4,高版本无法运行
+	2：基于可靠消息服务的分布式事务【不回滚，但是会中间件会轮询让下游再执行】
+		消息中间件充当事务协调者，事务发起者发起事务时向消息中间件发送一条消息，消息中间件收到后将该条消息持久化；
+		消息中间件向下游系统投递完消息后便进入阻塞等待状态，下游系统便立即进行任务的处理，任务处理完成后便向消息中间件返回应答。
+		消息中间件收到确认应答后便认为该事务处理完毕！
+		如果消息在投递过程中丢失，或消息的确认应答在返回途中丢失，那么消息中间件在等待确认应答超时之后就会重新投递，直到下游消费者返回消费成功响应为止。
+		当然，一般消息中间件可以设置消息重试的次数和时间间隔，比如：当第一次投递失败后，每隔五分钟重试一次，一共重试3次。
+		如果重试3次之后仍然投递失败，那么这条消息就需要人工干预。
+	3：最大努力通知【定期校对】
+		
+	4：TCC解决方案【两阶段，补偿型】
+		实现：
+			主从业务中都有Try,Confirm,Cancel方法
+			引入TCC框架的jar包
+				tcc spring
+			同时在需要进行TCC控制的业务接口方法中加入TransactionContext参数【并且放在第一位参数中】
+			主从系统中引用tcc的配置文件
+
+RabbitMQ 消息队列
+	fanout模式
+		把所有发送到该Exchange的消息路由到所有与它绑定的Queue中
+	direct模式
+		把消息路由到那些binding key与routing key完全匹配的Queue中【bingding key 匹配exchanges,routing key匹配routing key】
+		如果没有指定bingding key，则直接把routing key当作queue名
+	topic模式
+		把消息路由到那些binding key与routing key根据匹配规则进行匹配【bingding key匹配exchanges,routing key模糊匹配routing key】
+			模糊匹配规则：#表示多个单词或则0个，*表示一个单词
+

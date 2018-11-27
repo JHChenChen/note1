@@ -1,0 +1,22 @@
+﻿mysql函数
+	字符串转int：cast(num as signed integer)
+	时间差：TIMESTAMPDIFF(DAY,'2017-03-01','2016-03-05') DAY可以替换MONTH，YEAR
+
+mysql字符集
+	utf8只有3个字符长度，不能存emoji
+	utf8mb4是4个字符，可以存emoji
+
+
+spring cloud
+	ZuulFilter 网关过滤
+		重写方法：
+			run(); // 执行过滤过程，return null为通过过滤
+			shouldFilter(); // 是否执行该过滤器，此处为true，说明需要过滤  
+			filterOrder(); // 优先级为0，数字越大，优先级越低
+			filterType(); // 前置过滤器
+				pre：可以在请求被路由之前调用
+				route：在路由请求时候被调用
+				post：在route和error过滤器之后被调用
+				error：处理请求时发生错误时被调用
+	
+	Feign 

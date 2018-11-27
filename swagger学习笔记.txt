@@ -1,0 +1,110 @@
+基本使用：
+1. 定义请求参数（query parameters）
+	/persons:
+    get:
+		summary: Gets some persons
+		description: Returns a list containing all persons. The list supports paging.
+		parameters:	
+		- name: pageSize
+		  in: query【*请求参数】
+          description: Number of persons returned
+          type: integer
+	这样我们就可以使用 get /persons?pageSize=20的形式查询
+2. 定义路径参数（path parameter）
+	/persons/{username}:
+    get:
+      summary: Gets a person
+      description: Returns a single person for its username
+      parameters:
+        - name: username
+          in: path【*】
+          required: true
+          description: The person's username
+          type: string
+3. 定义消息体参数（body parameter）
+	/persons:
+	post:
+      summary: Creates a person
+      description: Adds a new person to the persons list.
+      parameters:
+        - name: person
+          in: body【*消息体】
+          description: The person to create.
+          schema:
+            required:【*指定必要的properties】
+              - username
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              username:
+                type: string
+5.1.7 文件参数	
+	/images:
+    parameters:
+      - $ref: '#/parameters/userAgent'【先设置好头参数再引用】
+    post:
+      summary: Uploads an image
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: image
+          in: formData
+          type: file
+5.2.3 响应消息头
+	responses:
+        '204':
+          description: Person succesfully created.
+          headers:
+            X-Rate-Limit-Remaining:【在响应头中增加的属性】
+              type: integer
+            X-Rate-Limit-Reset:【在响应头中增加的属性】
+              type: string
+              format: date-time
+5.2.5 响应消息的媒体类型【关键字produces，请求消息的关键字是consumes】
+	produces:
+        - image/png
+        - image/gif
+        - image/jpeg
+        - application/json
+        - application/x-yaml
+优化：
+	引用数据
+	schema:
+        $ref: "#/definitions/Persons"【引用Persons】
+	添加定义 （definitions）项，定义后在响应和请求里都能引用
+		definitions:
+			Person:
+				required:
+				  - username
+				properties:
+				  firstName:
+					type: string
+				  lastName:
+					type: string
+				  username:
+					type: string
+		responses:
+			Standard500ErrorResponse:
+				description: An unexpected error occured.
+				schema:
+					$ref: "#/definitions/Error"【这里引用了其它定义】
+	引用一个定义来增加另一个定义
+		Persons:
+			type: array
+			items:
+			  $ref: "#/definitions/Person"
+	简化参数定义
+		parameters
+			username:
+			name: username
+			in: path
+			required: true
+			description: The person's username
+			type: string
+	5.1.2 设置默认值
+		default: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgA……rkJggg==
+	5.1.3 带空值的参数
+		allowEmptyValue: true
+	

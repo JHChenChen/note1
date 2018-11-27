@@ -1,0 +1,27 @@
+熔断机制【Hystrix】：
+	防止“雪崩效应”（如果一个服务出现了故障或者是网络延迟，在高并发的情况下，会导致线程阻塞，在很短的时间内该服务的线程资源会消耗殆尽，最终使得该服务不可用 。
+		由于服务的相互依赖，可能会导致整个系统的不可用）
+	机制1：当服务出现故障，请求失败次数超过设定的阀值之后，服务就会开启熔断器，之后服务不进行任何的业务逻辑操作，执行快速失败，直接返回请求失败的信息。
+	机制2：自我修复的机制。
+
+负载均衡【Ribbon】
+	Feign默认自带Ribbon
+	RestTemplate 和 Ribbon 相结合，进行负载均衡：在Ioc配置一个RstTemplate并加上@LoadBalanced注解
+		@Bean
+		@LoadBalanced
+		RestTemplate restTemplate () {
+			return new RestTemplate();
+		}
+		方式1：
+			通过配置 ribbon.eureka.enable 为 false来禁止调用 Eureka Client 获取注册列表
+			轮询调用xxx.ribbon.listOfServers = e xarnple . corn , google. corn 里的服务
+			@GetMapping (”/testRibbon” )
+			public String testRibbon() {
+				Serviceinstance instance = loadBalancer.choose ("xxx");
+				return Instance.getHost() + ”：” + instance.getPort();
+			}
+		方式2：
+			调用Eureka Client 获取注册列表
+
+Feign
+	
