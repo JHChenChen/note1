@@ -2,21 +2,36 @@
 	字符串转int：cast(num as signed integer)
 	时间差：TIMESTAMPDIFF(DAY,'2017-03-01','2016-03-05') DAY可以替换MONTH，YEAR
 
+mysql存储emoji
+	方法1：改变数据库编码为utf8mb4
+	方法2：可以用工具类将emoji转码
+
 mysql字符集
 	utf8只有3个字符长度，不能存emoji
 	utf8mb4是4个字符，可以存emoji
 
 
 spring cloud
+	注册中心
 	ZuulFilter 网关过滤
-		重写方法：
-			run(); // 执行过滤过程，return null为通过过滤
-			shouldFilter(); // 是否执行该过滤器，此处为true，说明需要过滤  
-			filterOrder(); // 优先级为0，数字越大，优先级越低
-			filterType(); // 前置过滤器
-				pre：可以在请求被路由之前调用
-				route：在路由请求时候被调用
-				post：在route和error过滤器之后被调用
-				error：处理请求时发生错误时被调用
-	
+		基本配置：【使用serviceid默认有ribbon负载均衡，如果不想ribbon，指定url转发】
+			zuul.routes.xxx.path:
+			zuul.routes.xxx.url: 或者 zuul.routes.xxx.serviceid:
+		配置熔断器
+		配置过滤：
+			继承ZuulFilter
+			重写方法：
+				run(); // 执行过滤过程，return null为通过过滤
+				shouldFilter(); // 是否执行该过滤器，此处为true，说明需要过滤  
+				filterOrder(); // 优先级为0，数字越大，优先级越低
+				filterType(); // 前置过滤器
+					pre：可以在请求被路由之前调用
+					route：在路由请求时候被调用
+					post：在route和error过滤器之后被调用
+					error：处理请求时发生错误时被调用
+		
 	Feign 
+		
+	Config 配置中心
+		
+		
