@@ -59,3 +59,8 @@
 				ADD 复制本地文件到目标容器的系统文件中
 				EXPOSE 容器对外映射的端口
 				ENTRYPOINT 配置容器启动后执行的命令
+
+FROM openjdk:8-jdk-alpine
+ADD demo.jar demo.jar
+EXPOSE 8081
+ENTRYPOINT ["java","-jar","/firstdockerapp.jar"]
